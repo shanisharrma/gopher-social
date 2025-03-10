@@ -3,22 +3,22 @@ on:
     branches:
       - master
   
-  permissions:
-    contents: write
-    pull-request: write
+permissions:
+  contents: write
+  pull-requests: write
   
-  name: release-please
+name: release-please
 
-  jobs: 
-    release-please:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: googlapis/release-please-action@v4
-          with:
-            # this assumes that you have created a personal access token
-            # (PAT) and configured it as a GITHUB action request named
-            # `MY_RELEASE_PLEASE_TOKEN` (this secret name is not important).
-            token: ${{ secrets.MY RELEASE_PLEASE_TOKEN }}
-            #  this is a buiilt-in strategy in release-please, see "Action Inputs"
-            #  for more options
-            release-please: simple
+jobs: 
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googlapis/release-please-action@v4
+        with:
+          # this assumes that you have created a personal access token
+          # (PAT) and configured it as a GITHUB action request named
+          # `MY_RELEASE_PLEASE_TOKEN` (this secret name is not important).
+          token: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}
+          #  this is a buiilt-in strategy in release-please, see "Action Inputs"
+          #  for more options
+          release-please: simple
