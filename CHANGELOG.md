@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/shanisharrma/gopher-social/compare/v1.0.0...v1.0.1) (2025-03-10)
+
+
+### Bug Fixes
+
+* update api version automatically ([fa63025](https://github.com/shanisharrma/gopher-social/commit/fa63025df1bc04c48de6e60f3a8ebf3296d8f360))
+
 ## 1.0.0 (2025-03-10)
 
 
