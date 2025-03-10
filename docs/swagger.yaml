@@ -1,0 +1,585 @@
+basePath: /v2
+definitions:
+  main.CreatePostPayload:
+    properties:
+      content:
+        maxLength: 1000
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        maxLength: 100
+        type: string
+    required:
+    - content
+    - title
+    type: object
+  main.CreateUserTokenPayload:
+    properties:
+      email:
+        maxLength: 255
+        type: string
+      password:
+        maxLength: 72
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  main.RegisterUserPayload:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+      username:
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  main.UpdatePostPayload:
+    properties:
+      content:
+        maxLength: 1000
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        maxLength: 100
+        type: string
+    type: object
+  main.UserWithToken:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      role:
+        $ref: '#/definitions/store.Role'
+      role_id:
+        type: integer
+      token:
+        type: string
+      username:
+        type: string
+    type: object
+  store.Comment:
+    properties:
+      content:
+        type: string
+      created-at:
+        type: string
+      id:
+        type: integer
+      post_id:
+        type: integer
+      user:
+        $ref: '#/definitions/store.User'
+      user_id:
+        type: integer
+    type: object
+  store.Post:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/store.Comment'
+        type: array
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/store.User'
+      user_id:
+        type: integer
+      version:
+        type: integer
+    type: object
+  store.PostWithMetadata:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/store.Comment'
+        type: array
+      comments_count:
+        type: integer
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/store.User'
+      user_id:
+        type: integer
+      version:
+        type: integer
+    type: object
+  store.Role:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      level:
+        type: integer
+      name:
+        type: string
+    type: object
+  store.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      role:
+        $ref: '#/definitions/store.Role'
+      role_id:
+        type: integer
+      username:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: An API for GopherSocial, social network for gophers
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: GopherSocial
+paths:
+  /authentication/token:
+    post:
+      consumes:
+      - application/json
+      description: Login and create a token
+      parameters:
+      - description: User Credentials
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateUserTokenPayload'
+      responses:
+        "200":
+          description: Token
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema: {}
+        "401":
+          description: Unauthorized
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Login a user
+      tags:
+      - Authentication
+  /authentication/user:
+    post:
+      consumes:
+      - application/json
+      description: Registers a user
+      parameters:
+      - description: Users credentials
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.RegisterUserPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered
+          schema:
+            $ref: '#/definitions/main.UserWithToken'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Register a user
+      tags:
+      - Authentication
+  /health:
+    get:
+      description: Checks health of software
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: An error occured
+          schema: {}
+      summary: Check health
+      tags:
+      - Ops
+  /posts:
+    post:
+      consumes:
+      - application/json
+      description: Create a post
+      parameters:
+      - description: Post Payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreatePostPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Post created
+          schema:
+            $ref: '#/definitions/store.Post'
+        "400":
+          description: Payload missing
+          schema: {}
+        "401":
+          description: Unauthorized
+          schema: {}
+        "500":
+          description: An error occured
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Create a post
+      tags:
+      - Posts
+  /posts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a post using post ID by Authorized (admin, owner)
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Post deleted
+          schema:
+            type: string
+        "400":
+          description: Payload missing
+          schema: {}
+        "401":
+          description: Unauthorized
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: An error occured
+          schema:
+            type: obejct
+      security:
+      - ApiKeyAuth: []
+      summary: Deletes a post
+      tags:
+      - Posts
+    get:
+      consumes:
+      - application/json
+      description: Getches Post details by post ID
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post fetched
+          schema:
+            $ref: '#/definitions/store.Post'
+        "400":
+          description: Payload missing
+          schema: {}
+        "401":
+          description: Unauthorized
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: An error occured
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Fetches Post details
+      tags:
+      - Posts
+    patch:
+      consumes:
+      - application/json
+      description: Updates a post using post ID by authorized (admin,moderator,owner)
+      parameters:
+      - description: Post ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: UpdatePost payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdatePostPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Post updated
+          schema:
+            type: string
+        "400":
+          description: Payload missing
+          schema: {}
+        "401":
+          description: Unauthorized
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: An error occured
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Update a post
+      tags:
+      - Posts
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Fetches user profile by user id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User fetched
+          schema:
+            $ref: '#/definitions/store.User'
+        "400":
+          description: Payload missing
+          schema: {}
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: An error occured
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Fetches user profile
+      tags:
+      - Users
+  /users/{id}/follow:
+    put:
+      consumes:
+      - application/json
+      description: Follows a user by user ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User followed
+          schema:
+            type: string
+        "400":
+          description: User payload missing
+          schema: {}
+        "409":
+          description: Already followed
+          schema: {}
+        "500":
+          description: an error occured
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Follow a user
+      tags:
+      - Users
+  /users/{id}/unfollow:
+    put:
+      consumes:
+      - application/json
+      description: Unfollows a user by user ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User Unfollowed
+          schema:
+            type: string
+        "400":
+          description: Payload missing
+          schema: {}
+        "500":
+          description: An error occured
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Unfollow a user
+      tags:
+      - Users
+  /users/activate/{token}:
+    put:
+      description: Activates/Registers a user using invitaion token
+      parameters:
+      - description: Invitation token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User Activated
+          schema:
+            type: string
+        "404":
+          description: Not found
+          schema: {}
+        "500":
+          description: An error occured
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Activates/Registers a user
+      tags:
+      - Users
+  /users/feed:
+    get:
+      consumes:
+      - application/json
+      description: Fetches all the user feed
+      parameters:
+      - description: Since
+        in: query
+        name: since
+        type: string
+      - description: Until
+        in: query
+        name: until
+        type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      - description: Sort
+        in: query
+        name: sort
+        type: string
+      - description: Tags
+        in: query
+        name: tags
+        type: string
+      - description: Search
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/store.PostWithMetadata'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Fetches the user feed
+      tags:
+      - Feed
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
