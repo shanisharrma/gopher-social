@@ -21,4 +21,4 @@ jobs:
           token: ${{ secrets.MY_RELEASE_PLEASE_TOKEN }}
           #  this is a buiilt-in strategy in release-please, see "Action Inputs"
           #  for more options
-          release-please: simple
+          release-type: simple
